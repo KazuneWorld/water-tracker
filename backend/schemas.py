@@ -7,6 +7,7 @@ class CupCreate(BaseModel):
     name: str
     capacity_ml: int
     color: Optional[str] = "blue"
+    type: Optional[str] = "cup"
 
 class CupResponse(CupCreate):
     id: int
