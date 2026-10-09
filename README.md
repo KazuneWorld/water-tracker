@@ -28,3 +28,25 @@
 ### 追加実装予定
 * カスタム（手入力）記録機能（任意のmlを手入力）
 * 過去の履歴をカレンダー・グラフなどで可視化
+
+## データベース設計 (ER図)
+
+```mermaid
+erDiagram
+    cups ||--o{ water_logs : "1つの容器から複数の補給ログが生成される"
+
+    cups {
+        int id PK "自動インクリメント"
+        string name "容器名 (例: マグカップ)"
+        int capacity_ml "容量 (ml)"
+        string color "UI用カラー"
+        string type "容器の種類 ('cup': ワンタップ / 'bottle': 割合選択)"
+    }
+
+    water_logs {
+        int id PK "自動インクリメント"
+        int cup_id FK "使用した容器ID (任意/外部キー)"
+        int amount_ml "実際に摂取した水分量 (ml)"
+        datetime logged_at "記録日時"
+    }
+```
