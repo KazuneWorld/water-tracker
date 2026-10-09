@@ -9,6 +9,7 @@ class Cup(Base):
     name = Column(String(50), nullable=False)          # コップの名前
     capacity_ml = Column(Integer, nullable=False)      # 容量(ml)
     color = Column(String(20), default="blue")         # コップのカラー
+    type = Column(String(20), default="cup")           # タイプ(cup or bottle)
 
 
 class WaterLog(Base):
