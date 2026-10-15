@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import models
+from routers import cups
 from database import engine
 from routers import cups
 
@@ -18,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ルーターの登録
 app.include_router(cups.router)
 
 # 疎通確認用
