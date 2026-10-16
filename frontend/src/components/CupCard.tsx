@@ -8,7 +8,7 @@ export function CupCard({ cup }: CupCardProps) {
   const isBottle = cup.type === 'bottle';
 
   return (
-    <div className="border rounded-lg p-4 bg-white flex flex-col justify-between items-center text-center cursor-pointer hover:bg-slate-200">
+    <div className="border rounded-lg p-4 bg-white flex flex-col justify-between items-center text-center cursor-pointer hover:bg-slate-200 transition-all">
 
       {/* 容器名と容量 */}
       <h3 className="font-bold text-gray-800 text-base truncate w-full">{cup.name}</h3>
