@@ -16,7 +16,7 @@ export default function Home() {
         const data = await fetchCups();
         setCups(data);
       } catch (err) {
-        setError('容器データの取得に失敗しました。FastAPIが起動しているか確認してください。');
+        setError('容器データの取得に失敗しました。時間をおいて再度お試しください。');
       } finally {
         setLoading(false);
       }
