@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import models
-from database import engine
 from routers import cups
+from database import engine
 
 # 定義したモデルを元にMySQLにテーブルを自動作成する
 models.Base.metadata.create_all(bind=engine)
@@ -18,6 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ルーターの登録
 app.include_router(cups.router)
 
 # 疎通確認用
