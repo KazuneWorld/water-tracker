@@ -47,8 +47,8 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 relative">
+        <div onClick={onClose} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl max-w-md w-full p-6 relative">
                 <h2 className="text-xl font-bold text-slate-800 mb-4">新しい容器を追加</h2>
 
                 {errorMessage && (
