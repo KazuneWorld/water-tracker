@@ -74,7 +74,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 👈 モーダルコンポーネントを配置 */}
+      {/* モーダルコンポーネントを配置 */}
       <AddCupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
