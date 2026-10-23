@@ -47,7 +47,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
             const newCup = await createCup(inputData);
             onSuccess(newCup);
             handleClose();
-        } catch (err) {
+        } catch {
             setErrorMessage('容器の登録に失敗しました。もう一度お試しください。');
         } finally {
             setSubmitting(false);
