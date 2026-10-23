@@ -17,6 +17,18 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const resetForm = () => {
+        setName('');
+        setCapacityMl(200);
+        setType('cup');
+        setErrorMessage(null);
+    };
+
+    const handleClose = () => {
+        resetForm();
+        onClose();
+    };
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -34,11 +46,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
         try {
             const newCup = await createCup(inputData);
             onSuccess(newCup);
-            // フォームの初期化とモーダルクローズ
-            setName('');
-            setCapacityMl(200);
-            setType('cup');
-            onClose();
+            handleClose();
         } catch (err) {
             setErrorMessage('容器の登録に失敗しました。もう一度お試しください。');
         } finally {
@@ -47,7 +55,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
     };
 
     return (
-        <div onClick={onClose} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div onClick={handleClose} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl max-w-md w-full p-6 relative">
                 <h2 className="text-xl font-bold text-slate-800 mb-4">新しい容器を追加</h2>
 
@@ -124,7 +132,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleClose}
                             disabled={submitting}
                             className="px-4 py-2 text-sm font-medium text-slate-600 cursor-pointer hover:bg-slate-100 rounded-lg transition-colors"
                         >
