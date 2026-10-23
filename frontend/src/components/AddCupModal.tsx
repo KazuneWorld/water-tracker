@@ -141,7 +141,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="px-4 py-2 text-sm font-medium text-white font-semibold bg-blue-600 cursor-pointer hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                            className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 cursor-pointer hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
                         >
                             {submitting ? '追加中...' : '追加する'}
                         </button>
