@@ -77,7 +77,7 @@ def update_log(
 @router.delete("/{log_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_log(log_id: int, db: Session = Depends(get_db)):
     log = get_valid_log_for_today(log_id, db)
-    
+
     db.delete(log)
     db.commit()
     return None
