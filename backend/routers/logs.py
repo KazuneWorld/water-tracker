@@ -9,6 +9,24 @@ import schemas
 
 router = APIRouter(prefix="/logs", tags=["logs"])
 
+# 共通: 当日のログかどうかを確認する
+def get_valid_log_for_today(log_id: int, db: Session) -> models.WaterLog:
+
+    log = db.query(models.WaterLog).filter(models.WaterLog.id == log_id).first()
+    if not log:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="該当のログが見つかりません"
+        )
+    
+    if log.logged_at.date() != date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="過去日のログは操作できません（当日のログのみ操作可能です）"
+        )
+    
+    return log
+
 # 1. 水分補給の記録（POST /logs）
 @router.post("", response_model=schemas.WaterLogResponse, status_code=status.HTTP_201_CREATED)
 def create_log(log_in: schemas.WaterLogCreate, db: Session = Depends(get_db)):
@@ -48,19 +66,7 @@ def update_log(
     log_in: schemas.WaterLogUpdate, 
     db: Session = Depends(get_db)
 ):
-    log = db.query(models.WaterLog).filter(models.WaterLog.id == log_id).first()
-    if not log:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="該当のログが見つかりません"
-        )
-    
-    # 当日チェック: 記録日が今日でない場合は拒否
-    if log.logged_at.date() != date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="過去日のログは編集できません（当日のログのみ操作可能です）"
-        )
+    log = get_valid_log_for_today(log_id, db)
 
     log.amount_ml = log_in.amount_ml
     db.commit()
@@ -70,19 +76,7 @@ def update_log(
 # 4. ログの削除（当日のみ許可）(DELETE /logs/{log_id})
 @router.delete("/{log_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_log(log_id: int, db: Session = Depends(get_db)):
-    log = db.query(models.WaterLog).filter(models.WaterLog.id == log_id).first()
-    if not log:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="該当のログが見つかりません"
-        )
-    
-    # 当日チェック: 記録日が今日でない場合は拒否
-    if log.logged_at.date() != date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="過去日のログは削除できません（当日のログのみ操作可能です）"
-        )
+    log = get_valid_log_for_today(log_id, db)
     
     db.delete(log)
     db.commit()
