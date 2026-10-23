@@ -33,12 +33,26 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitting(true);
         setErrorMessage(null);
 
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            setErrorMessage('容器の名前を入力してください。');
+            return;
+        }
+        if (trimmedName.length > 50) {
+            setErrorMessage('容器の名前は50文字以内で入力してください。');
+            return;
+        }
+        if (!Number.isInteger(capacityMl) || capacityMl < 1 || capacityMl > 5000) {
+            setErrorMessage('容量は1〜5000mlの整数で入力してください。');
+            return;
+        }
+
+        setSubmitting(true);
         const inputData: CreateCupInput = {
-            name,
-            capacity_ml: Number(capacityMl),
+            name: trimmedName,
+            capacity_ml: capacityMl,
             type,
             color: 'blue', // カラーは一旦固定値
         };
@@ -74,6 +88,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                         <input
                             type="text"
                             required
+                            maxLength={50}
                             placeholder="例: よく使うマグカップ"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -90,6 +105,8 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                             type="number"
                             required
                             min={1}
+                            max={5000}
+                            step={1}
                             value={capacityMl}
                             onChange={(e) => setCapacityMl(Number(e.target.value))}
                             className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
