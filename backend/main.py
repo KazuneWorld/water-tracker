@@ -21,7 +21,6 @@ app.add_middleware(
 
 # ルーターの登録
 app.include_router(cups.router)
-
 app.include_router(logs.router)
 
 # 疎通確認用

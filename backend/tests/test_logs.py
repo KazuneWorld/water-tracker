@@ -19,7 +19,7 @@ def test_create_water_log():
 # 2. 日別の水分補給の合計量とログ一覧が取得できるかテスト (GET /logs)
 def test_get_daily_summary():
     client.post("/logs", json={"amount_ml": 300})
-    
+
     response = client.get("/logs")
     assert response.status_code == 200
     data = response.json()
