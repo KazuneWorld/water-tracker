@@ -73,13 +73,14 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
             <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl max-w-md w-full p-6 relative">
                 <h2 className="text-xl font-bold text-slate-800 mb-4">新しい容器を追加</h2>
 
+                {/* エラーメッセージボックス */}
                 {errorMessage && (
                     <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
                         {errorMessage}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} noValidate className="space-y-4">
                     {/* 容器名 */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-1">
@@ -87,7 +88,6 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                         </label>
                         <input
                             type="text"
-                            required
                             maxLength={50}
                             placeholder="例: よく使うマグカップ"
                             value={name}
@@ -103,11 +103,7 @@ export function AddCupModal({ isOpen, onClose, onSuccess }: AddCupModalProps) {
                         </label>
                         <input
                             type="number"
-                            required
-                            min={1}
-                            max={5000}
-                            step={1}
-                            value={capacityMl}
+                            value={capacityMl || ''}
                             onChange={(e) => setCapacityMl(Number(e.target.value))}
                             className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
