@@ -19,7 +19,7 @@ export default function Home() {
         setCups(data);
       } catch (err) {
         setError(
-          '容器データの取得に失敗しました。FastAPIが起動しているか確認してください。',
+          '容器データの取得に失敗しました。時間をおいて再度お試しください。',
         );
       } finally {
         setLoading(false);

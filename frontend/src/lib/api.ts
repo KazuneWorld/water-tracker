@@ -1,7 +1,7 @@
 import { Cup, CreateCupInput } from '@/types/cup';
 
-// バックエンドAPIのベースURL
-const API_BASE_URL = 'http://localhost:8000';
+// バックエンドAPIのベースURL (環境変数から取得、なければlocalhost:8000を使用)
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 // 容器一覧を取得する API 通信関数
 export async function fetchCups(): Promise<Cup[]> {
