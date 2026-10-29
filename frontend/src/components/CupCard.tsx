@@ -6,7 +6,7 @@ import { createWaterLog } from '@/lib/api';
 
 interface CupCardProps {
   cup: Cup;
-  onLogSuccess?: () => void; // 記録成功時のコールバック関数
+  onLogSuccess?: () => void;
 }
 
 export function CupCard({ cup, onLogSuccess }: CupCardProps) {
