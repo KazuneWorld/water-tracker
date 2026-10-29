@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCups() {
@@ -33,8 +34,29 @@ export default function Home() {
     setCups((prevCups) => [...prevCups, newCup]);
   };
 
+  // コップ記録成功時の処理（ポップアップ表示）
+  const handleLogSuccess = (amountMl: number, cupName: string) => {
+    setToastMessage(`${cupName} (${amountMl}ml) を記録しました！`);
+
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+
+    // TODO: Issue #7 (進捗ゲージ) と Issue #8 (履歴リスト) 作成時にここで再取得を呼ぶ
+  };
+
   return (
-    <main className="min-h-screen bg-slate-50 p-6 max-w-2xl mx-auto">
+    <main className="relative min-h-screen bg-slate-50 p-6 max-w-2xl mx-auto">
+      {/* 画面上部のトースト通知 */}
+      {toastMessage && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-300">
+          <div className="bg-slate-800 text-white text-sm font-semibold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
+            <span className="text-blue-400">💧</span>
+            <span>{toastMessage}</span>
+          </div>
+        </div>
+      )}
+
       <header className="mb-5 flex justify-between items-center">
         <div className="text-left">
           <h1 className="text-2xl font-bold">Water Tracker</h1>
@@ -69,7 +91,11 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {cups.map((cup) => (
-                <CupCard key={cup.id} cup={cup} />
+                <CupCard
+                  key={cup.id}
+                  cup={cup}
+                  onLogSuccess={() => handleLogSuccess(cup.capacity_ml, cup.name)}
+                />
               ))}
             </div>
           )}
