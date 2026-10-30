@@ -7,11 +7,12 @@ import { CupCard } from '@/components/CupCard';
 import { AddCupModal } from '@/components/AddCupModal';
 import { WaterLog } from '@/types/log';
 import { WaterLogHistory } from '@/components/WaterLogHistory';
+import { WaterProgressBar } from '@/components/WaterProgressBar';
 
 export default function Home() {
   const [cups, setCups] = useState<Cup[]>([]);
   const [logs, setLogs] = useState<WaterLog[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0); // #7（ゲージ）用
+  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -100,9 +101,13 @@ export default function Home() {
         </div>
       )}
 
+
       {/* 容器一覧グリッド表示 */}
       {!loading && !error && (
         <div>
+          {/* 進捗ゲージ */}
+          <WaterProgressBar currentAmount={totalAmount} targetAmount={2000} />
+          
           {cups.length === 0 ? (
             <p className="text-slate-400 text-center py-8">
               登録されている容器がありません。
