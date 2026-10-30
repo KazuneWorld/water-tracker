@@ -1,4 +1,5 @@
 import { Cup, CreateCupInput } from '@/types/cup';
+import { CreateWaterLogInput, WaterLog } from '@/types/log';
 
 // バックエンドAPIのベースURL (環境変数から取得、なければlocalhost:8000を使用)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
@@ -31,4 +32,21 @@ export async function createCup(input: CreateCupInput): Promise<Cup> {
   }
 
   return response.json();
+}
+
+// カップログ作成
+export async function createWaterLog(input: CreateWaterLogInput): Promise<WaterLog> {
+  const res = await fetch(`${API_BASE_URL}/logs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    throw new Error('記録に失敗しました');
+  }
+
+  return res.json();
 }
