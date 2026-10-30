@@ -1,5 +1,5 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime
+from app_timezone import now_jst_naive
 from database import Base
 
 class Cup(Base):
@@ -17,4 +17,4 @@ class WaterLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     amount_ml = Column(Integer, nullable=False)                 # 摂取量(ml)
-    logged_at = Column(DateTime, default=datetime.now)          # 記録日時
+    logged_at = Column(DateTime, default=now_jst_naive)          # 日本時間の記録日時

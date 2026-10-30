@@ -50,3 +50,46 @@ export async function createWaterLog(input: CreateWaterLogInput): Promise<WaterL
 
   return res.json();
 }
+
+// 日別サマリーのレスポンス型
+export interface DailySummaryResponse {
+  date: string;
+  total_amount_ml: number;
+  logs: WaterLog[];
+}
+
+// 本日のログ一覧・サマリー取得 (GET /logs)
+export async function fetchDailySummary(targetDate?: string): Promise<DailySummaryResponse> {
+  const url = targetDate
+    ? `${API_BASE_URL}/logs?target_date=${targetDate}`
+    : `${API_BASE_URL}/logs`;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('サマリーデータの取得に失敗しました');
+  }
+  return res.json();
+}
+
+// ログの編集 (PUT /logs/{id})
+export async function updateWaterLog(logId: number, amountMl: number): Promise<WaterLog> {
+  const res = await fetch(`${API_BASE_URL}/logs/${logId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount_ml: amountMl }),
+  });
+  if (!res.ok) {
+    throw new Error('ログの更新に失敗しました');
+  }
+  return res.json();
+}
+
+// ログの削除 (DELETE /logs/{id})
+export async function deleteWaterLog(logId: number): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/logs/${logId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) {
+    throw new Error('ログの削除に失敗しました');
+  }
+}
