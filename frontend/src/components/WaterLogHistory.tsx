@@ -30,7 +30,12 @@ export function WaterLogHistory({ logs, onDataChange }: WaterLogHistoryProps) {
   // 時刻フォーマット（HH:MM）
   const formatTime = (isoString: string) => {
     const d = new Date(isoString);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   };
 
   return (
@@ -55,14 +60,14 @@ export function WaterLogHistory({ logs, onDataChange }: WaterLogHistoryProps) {
                   className="py-3 flex items-center justify-between text-sm"
                 >
                   {/* 記録時刻 */}
-                  <span className="text-slate-400 text-xs w-16">
+                  <span className="text-slate-400 text-sm w-16">
                     {formatTime(log.logged_at)}
                   </span>
 
                   {/* 摂取量 */}
-                  <span className="font-semibold text-slate-700 flex-1">
+                  <span className="font-semibold text-slate-700 text-base flex-1">
                     {log.amount_ml}{' '}
-                    <span className="text-xs font-normal text-slate-500">ml</span>
+                    <span className="text-sm font-normal text-slate-500">ml</span>
                   </span>
 
                   {/* 取り消しボタン */}

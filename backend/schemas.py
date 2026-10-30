@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
 from datetime import datetime, date
 from typing import Optional
+from pydantic import BaseModel, Field, field_serializer
+from app_timezone import JST
 
 # --- コップ関連のスキーマ ---
 class CupCreate(BaseModel):
@@ -28,6 +29,10 @@ class WaterLogResponse(BaseModel):
     id: int
     amount_ml: int
     logged_at: datetime
+
+    @field_serializer("logged_at")
+    def serialize_logged_at(self, value: datetime) -> str:
+        return value.replace(tzinfo=JST).isoformat()
 
     class Config:
         from_attributes = True

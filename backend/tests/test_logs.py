@@ -15,6 +15,7 @@ def test_create_water_log():
     assert data["amount_ml"] == 200
     assert "id" in data
     assert "logged_at" in data
+    assert data["logged_at"].endswith("+09:00")
 
 # 2. 日別の水分補給の合計量とログ一覧が取得できるかテスト (GET /logs)
 def test_get_daily_summary():
