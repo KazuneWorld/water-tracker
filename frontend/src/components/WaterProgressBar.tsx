@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 interface WaterProgressBarProps {
   currentAmount: number;
   targetAmount?: number; // デフォルト 2000ml
@@ -11,8 +13,19 @@ export function WaterProgressBar({
 }: WaterProgressBarProps) {
   // 達成率（上限なしの計算用とバー幅用の最大100%を分ける）
   const percentage = Math.round((currentAmount / targetAmount) * 100);
-  const barWidth = Math.min(percentage, 100);
+  const targetBarWidth = Math.min(percentage, 100);
   const isCompleted = percentage >= 100;
+
+  // アニメーション用：最初は 0% からスタート
+  const [animatedWidth, setAnimatedWidth] = useState<number>(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedWidth(targetBarWidth);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [targetBarWidth]);
 
   return (
     <section className="bg-white rounded-xl p-5 border border-slate-200 mb-6">
@@ -32,10 +45,10 @@ export function WaterProgressBar({
       {/* プログレスバー */}
       <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-500 ease-out ${
+          className={`h-full rounded-full transition-all duration-1000 ease-out ${
             isCompleted ? 'bg-teal-500' : 'bg-blue-500'
           }`}
-          style={{ width: `${barWidth}%` }}
+          style={{ width: `${animatedWidth}%` }}
         />
       </div>
 
