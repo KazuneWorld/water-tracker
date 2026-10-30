@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
 
 interface WaterProgressBarProps {
   currentAmount: number;
@@ -19,6 +20,7 @@ export function WaterProgressBar({
   // アニメーション用：最初は 0% からスタート
   const [animatedWidth, setAnimatedWidth] = useState<number>(0);
 
+  // バーを伸ばすアニメーション
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedWidth(targetBarWidth);
@@ -26,6 +28,27 @@ export function WaterProgressBar({
 
     return () => clearTimeout(timer);
   }, [targetBarWidth]);
+
+  // 100% 達成時のクラッカー演出（バーが伸びたタイミングで発火）
+  useEffect(() => {
+    if (!isCompleted) return;
+
+    // バーが伸びきるタイミングに合わせて発射
+    const confettiTimer = setTimeout(() => {
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { x: 0.2, y: 0.6 },
+      });
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { x: 0.8, y: 0.6 },
+      });
+    }, 800);
+
+    return () => clearTimeout(confettiTimer);
+  }, [isCompleted]);
 
   return (
     <section className="bg-white rounded-xl p-5 border border-slate-200 mb-6">
