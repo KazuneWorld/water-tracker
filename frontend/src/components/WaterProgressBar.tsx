@@ -21,6 +21,8 @@ export function WaterProgressBar({
     ? Math.round((currentAmount / targetAmount) * 100)
     : Math.min(Math.floor((currentAmount / targetAmount) * 100), 99);
 
+  const targetBarWidth = Math.min((currentAmount / targetAmount) * 100, 100);
+
   // アニメーション用：最初は 0% からスタート
   const [animatedWidth, setAnimatedWidth] = useState<number>(0);
 
