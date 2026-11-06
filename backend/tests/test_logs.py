@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from app_timezone import now_jst_naive
 from fastapi.testclient import TestClient
 
 import models
@@ -40,7 +41,7 @@ def test_update_today_log_success():
 # 4. 過去日のログ編集が拒否されることをテスト (PUT /logs/{log_id})
 def test_update_past_log_fails():
     with SessionLocal() as db:
-        yesterday = datetime.now() - timedelta(days=1)
+        yesterday = now_jst_naive() - timedelta(days=1)
         past_log = models.WaterLog(amount_ml=200, logged_at=yesterday)
         db.add(past_log)
         db.commit()
@@ -49,7 +50,7 @@ def test_update_past_log_fails():
 
     update_res = client.put(f"/logs/{past_log_id}", json={"amount_ml": 400})
     assert update_res.status_code == 400
-    assert "過去日のログは編集できません" in update_res.json()["detail"]
+    assert "過去日のログは操作できません" in update_res.json()["detail"]
 
 # 5. 当日のログ削除が成功することをテスト (DELETE /logs/{log_id})
 def test_delete_today_log_success():
@@ -62,7 +63,7 @@ def test_delete_today_log_success():
 # 6. 過去日のログ削除が拒否されることをテスト (DELETE /logs/{log_id})
 def test_delete_past_log_fails():
     with SessionLocal() as db:
-        yesterday = datetime.now() - timedelta(days=1)
+        yesterday = now_jst_naive() - timedelta(days=1)
         past_log = models.WaterLog(amount_ml=300, logged_at=yesterday)
         db.add(past_log)
         db.commit()
@@ -71,4 +72,4 @@ def test_delete_past_log_fails():
 
     delete_res = client.delete(f"/logs/{past_log_id}")
     assert delete_res.status_code == 400
-    assert "過去日のログは削除できません" in delete_res.json()["detail"]
+    assert "過去日のログは操作できません" in delete_res.json()["detail"]
