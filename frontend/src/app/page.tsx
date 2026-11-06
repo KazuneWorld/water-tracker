@@ -7,11 +7,12 @@ import { CupCard } from '@/components/CupCard';
 import { AddCupModal } from '@/components/AddCupModal';
 import { WaterLog } from '@/types/log';
 import { WaterLogHistory } from '@/components/WaterLogHistory';
+import { WaterProgressBar } from '@/components/WaterProgressBar';
 
 export default function Home() {
   const [cups, setCups] = useState<Cup[]>([]);
   const [logs, setLogs] = useState<WaterLog[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0); // #7（ゲージ）用
+  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -79,7 +80,6 @@ export default function Home() {
       <header className="mb-5 flex justify-between items-center">
         <div className="text-left">
           <h1 className="text-2xl font-bold">Water Tracker</h1>
-          <p className="text-slate-500 text-sm">マイ容器一覧</p>
         </div>
         {/* 新規容器追加ボタン */}
         <button
@@ -100,26 +100,37 @@ export default function Home() {
         </div>
       )}
 
-      {/* 容器一覧グリッド表示 */}
-      {!loading && !error && (
+
+{!loading && !error && (
         <div>
-          {cups.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">
-              登録されている容器がありません。
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {cups.map((cup) => (
-                <CupCard
-                  key={cup.id}
-                  cup={cup}
+          {/* 進捗ゲージ */}
+          <WaterProgressBar currentAmount={totalAmount} />
+
+          {/* マイ容器セクション */}
+          <section className="mt-8">
+            <h2 className="text-base font-bold text-slate-800 mb-3 text-left">
+              マイ容器一覧
+            </h2>
+
+            {/* 容器一覧グリッド表示 */}
+            {cups.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">
+                登録されている容器がありません。
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {cups.map((cup) => (
+                  <CupCard
+                    key={cup.id}
+                    cup={cup}
                   onLogSuccess={() => handleLogSuccess(cup.capacity_ml, cup.name)}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* 履歴リスト（削除時にも loadSummary を呼ぶ） */}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* 本日の履歴セクション */}
           <WaterLogHistory logs={logs} onDataChange={loadSummary} />
         </div>
       )}
