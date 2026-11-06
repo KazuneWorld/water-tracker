@@ -104,7 +104,7 @@ export default function Home() {
 {!loading && !error && (
         <div>
           {/* 進捗ゲージ */}
-          <WaterProgressBar currentAmount={totalAmount} targetAmount={2000} />
+          <WaterProgressBar currentAmount={totalAmount} />
 
           {/* マイ容器セクション */}
           <section className="mt-8">

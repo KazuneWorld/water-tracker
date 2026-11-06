@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 
+// 目標値の定数
+const DEFAULT_TARGET_AMOUNT = 2000;
+
 interface WaterProgressBarProps {
   currentAmount: number;
   targetAmount?: number; // デフォルト 2000ml
@@ -10,12 +13,13 @@ interface WaterProgressBarProps {
 
 export function WaterProgressBar({
   currentAmount,
-  targetAmount = 2000,
+  targetAmount = DEFAULT_TARGET_AMOUNT
 }: WaterProgressBarProps) {
   // 達成率（上限なしの計算用とバー幅用の最大100%を分ける）
-  const percentage = Math.round((currentAmount / targetAmount) * 100);
-  const targetBarWidth = Math.min(percentage, 100);
-  const isCompleted = percentage >= 100;
+  const isCompleted = currentAmount >= targetAmount;
+  const percentage = isCompleted
+    ? Math.round((currentAmount / targetAmount) * 100)
+    : Math.min(Math.floor((currentAmount / targetAmount) * 100), 99);
 
   // アニメーション用：最初は 0% からスタート
   const [animatedWidth, setAnimatedWidth] = useState<number>(0);
