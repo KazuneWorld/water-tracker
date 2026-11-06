@@ -1,48 +1,67 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Cup } from '@/types/cup';
-import { fetchCups } from '@/lib/api';
+import { fetchCups, fetchDailySummary } from '@/lib/api';
 import { CupCard } from '@/components/CupCard';
 import { AddCupModal } from '@/components/AddCupModal';
+import { WaterLog } from '@/types/log';
+import { WaterLogHistory } from '@/components/WaterLogHistory';
 
 export default function Home() {
   const [cups, setCups] = useState<Cup[]>([]);
+  const [logs, setLogs] = useState<WaterLog[]>([]);
+  const [totalAmount, setTotalAmount] = useState<number>(0); // #7（ゲージ）用
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // サマリー（履歴・合計量）の再取得関数
+  const loadSummary = useCallback(async () => {
+    try {
+      const summary = await fetchDailySummary();
+      setLogs(summary.logs);
+      setTotalAmount(summary.total_amount_ml);
+    } catch (err) {
+      console.error('サマリー取得失敗', err);
+    }
+  }, []);
+
+  // 初回マウント時に容器一覧とログサマリーを並列取得
   useEffect(() => {
-    async function loadCups() {
+    async function initData() {
       try {
-        const data = await fetchCups();
-        setCups(data);
+        const [cupsData, summaryData] = await Promise.all([
+          fetchCups(),
+          fetchDailySummary(),
+        ]);
+        setCups(cupsData);
+        setLogs(summaryData.logs);
+        setTotalAmount(summaryData.total_amount_ml);
       } catch (err) {
         setError(
-          '容器データの取得に失敗しました。時間をおいて再度お試しください。',
+          'データの取得に失敗しました。時間をおいて再度お試しください。',
         );
       } finally {
         setLoading(false);
       }
     }
 
-    loadCups();
+    initData();
   }, []);
 
   const handleCupAdded = (newCup: Cup) => {
     setCups((prevCups) => [...prevCups, newCup]);
   };
 
-  // コップ記録成功時の処理（ポップアップ表示）
+  // コップ記録時
   const handleLogSuccess = (amountMl: number, cupName: string) => {
     setToastMessage(`${cupName} (${amountMl}ml) を記録しました！`);
+    setTimeout(() => setToastMessage(null), 2500);
 
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2500);
-
-    // TODO: Issue #7 (進捗ゲージ) と Issue #8 (履歴リスト) 作成時にここで再取得を呼ぶ
+    // 履歴・合計量を最新化
+    loadSummary();
   };
 
   return (
@@ -99,6 +118,9 @@ export default function Home() {
               ))}
             </div>
           )}
+          
+          {/* 履歴リスト（削除時にも loadSummary を呼ぶ） */}
+          <WaterLogHistory logs={logs} onDataChange={loadSummary} />
         </div>
       )}
 

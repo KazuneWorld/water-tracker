@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date
 from typing import Optional
+from app_timezone import today_jst
 from database import get_db
 import models
 import schemas
@@ -19,7 +20,7 @@ def get_valid_log_for_today(log_id: int, db: Session) -> models.WaterLog:
             detail="該当のログが見つかりません"
         )
     
-    if log.logged_at.date() != date.today():
+    if log.logged_at.date() != today_jst():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="過去日のログは操作できません（当日のログのみ操作可能です）"
@@ -42,7 +43,7 @@ def get_daily_summary(
     target_date: Optional[date] = None, 
     db: Session = Depends(get_db)
 ):
-    query_date = target_date or date.today()
+    query_date = target_date or today_jst()
 
     logs = (
         db.query(models.WaterLog)
