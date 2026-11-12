@@ -7,7 +7,10 @@ import { CupCard } from '@/components/CupCard';
 import { AddCupModal } from '@/components/AddCupModal';
 import { WaterLog } from '@/types/log';
 import { WaterLogHistory } from '@/components/WaterLogHistory';
-import { WaterProgressBar } from '@/components/WaterProgressBar';
+import { WaterProgressBar, DEFAULT_TARGET_AMOUNT } from '@/components/WaterProgressBar';
+
+// localStrageの保存キー
+const TARGET_AMOUNT_STORAGE_KEY = 'water-tracker-target-amount';
 
 export default function Home() {
   const [cups, setCups] = useState<Cup[]>([]);
@@ -17,6 +20,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [targetAmount, setTargetAmount] = useState<number>(DEFAULT_TARGET_AMOUNT);
 
   // サマリー（履歴・合計量）の再取得関数
   const loadSummary = useCallback(async () => {
@@ -54,6 +58,23 @@ export default function Home() {
 
   const handleCupAdded = (newCup: Cup) => {
     setCups((prevCups) => [...prevCups, newCup]);
+  };
+
+  // 初回マウント時に localStorage から保存済みの目標値を読み込む
+  useEffect(() => {
+    const saved = localStorage.getItem(TARGET_AMOUNT_STORAGE_KEY);
+    if (saved) {
+      const parsed = Number(saved);
+      if (Number.isFinite(parsed) && parsed >= 100 && parsed <= 10000) {
+        setTargetAmount(parsed);
+      }
+    }
+  }, []);
+
+  // 目標値を更新して localStorage に保存する関数
+  const handleUpdateTargetAmount = (newTarget: number) => {
+    setTargetAmount(newTarget);
+    localStorage.setItem(TARGET_AMOUNT_STORAGE_KEY, String(newTarget));
   };
 
   // コップ記録時
@@ -104,7 +125,10 @@ export default function Home() {
 {!loading && !error && (
         <div>
           {/* 進捗ゲージ */}
-          <WaterProgressBar currentAmount={totalAmount} />
+          <WaterProgressBar currentAmount={totalAmount}
+            targetAmount={targetAmount}
+            onUpdateTarget={handleUpdateTargetAmount}
+          />
 
           {/* マイ容器セクション */}
           <section className="mt-8">
