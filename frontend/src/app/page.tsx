@@ -123,7 +123,9 @@ export default function Home() {
                   <CupCard
                     key={cup.id}
                     cup={cup}
-                  onLogSuccess={() => handleLogSuccess(cup.capacity_ml, cup.name)}
+                    onLogSuccess={(amountMl) =>
+                      handleLogSuccess(amountMl, cup.name)
+                    }
                   />
                 ))}
               </div>
