@@ -17,6 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [deletedLogId, setDeletedLogId] = useState<number | null>(null);
 
   // サマリー（履歴・合計量）の再取得関数
   const loadSummary = useCallback(async () => {
@@ -62,6 +63,11 @@ export default function Home() {
     setTimeout(() => setToastMessage(null), 2500);
 
     // 履歴・合計量を最新化
+    loadSummary();
+  };
+
+  const handleLogDeleted = (deletedLogId: number) => {
+    setDeletedLogId(deletedLogId);
     loadSummary();
   };
 
@@ -123,6 +129,7 @@ export default function Home() {
                   <CupCard
                     key={cup.id}
                     cup={cup}
+                    deletedLogId={deletedLogId}
                     onLogSuccess={(amountMl) =>
                       handleLogSuccess(amountMl, cup.name)
                     }
@@ -133,7 +140,10 @@ export default function Home() {
           </section>
 
           {/* 本日の履歴セクション */}
-          <WaterLogHistory logs={logs} onDataChange={loadSummary} />
+          <WaterLogHistory
+            logs={logs}
+            onDataChange={handleLogDeleted}
+          />
         </div>
       )}
 

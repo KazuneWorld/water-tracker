@@ -7,6 +7,7 @@ import { BottleLogModal } from '@/components/BottleLogModal';
 
 interface CupCardProps {
   cup: Cup;
+  deletedLogId?: number | null;
   onLogSuccess?: (amountMl: number) => void;
 }
 
@@ -19,7 +20,21 @@ function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
-export function CupCard({ cup, onLogSuccess }: CupCardProps) {
+function getStoredBottleLog(storageKey: string) {
+  const value = localStorage.getItem(storageKey);
+  if (!value) return null;
+
+  try {
+    const stored = JSON.parse(value);
+    if (stored.date && typeof stored.logId === 'number') return stored;
+  } catch {
+    if (value === getTodayDateString()) return { date: value, logId: null };
+  }
+
+  return null;
+}
+
+export function CupCard({ cup, deletedLogId, onLogSuccess }: CupCardProps) {
   const [loading, setLoading] = useState(false);
   const [isBottleModalOpen, setIsBottleModalOpen] = useState(false);
   const [recordedToday, setRecordedToday] = useState(false);
@@ -28,11 +43,24 @@ export function CupCard({ cup, onLogSuccess }: CupCardProps) {
 
   useEffect(() => {
     if (!isBottle) return;
-    const savedDate = localStorage.getItem(storageKey);
-    if (savedDate === getTodayDateString()) {
+    const storedLog = getStoredBottleLog(storageKey);
+    if (storedLog?.date === getTodayDateString()) {
       setRecordedToday(true);
     }
   }, [isBottle, storageKey]);
+
+  useEffect(() => {
+    if (!isBottle || deletedLogId == null) return;
+
+    const storedLog = getStoredBottleLog(storageKey);
+    const isLegacyLog =
+      storedLog?.logId === null &&
+      storedLog.date === getTodayDateString();
+    if (storedLog?.logId !== deletedLogId && !isLegacyLog) return;
+
+    localStorage.removeItem(storageKey);
+    setRecordedToday(false);
+  }, [deletedLogId, isBottle, storageKey]);
 
   const handleClick = async () => {
     if (loading || (isBottle && (recordedToday || isBottleModalOpen))) return;
@@ -48,9 +76,15 @@ export function CupCard({ cup, onLogSuccess }: CupCardProps) {
   const submitLog = async (amountMl: number) => {
     setLoading(true);
     try {
-      await createWaterLog({ amount_ml: amountMl });
+      const createdLog = await createWaterLog({ amount_ml: amountMl });
       if (isBottle) {
-        localStorage.setItem(storageKey, getTodayDateString());
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            date: getTodayDateString(),
+            logId: createdLog.id,
+          }),
+        );
         setRecordedToday(true);
         setIsBottleModalOpen(false);
       }
