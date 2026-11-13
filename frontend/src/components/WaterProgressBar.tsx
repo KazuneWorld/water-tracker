@@ -75,11 +75,11 @@ export function WaterProgressBar({
     setIsEditing(true);
   };
 
-  // 保存処理（100ml〜10000mlなどの現実的な範囲でバリデーション）
+  // 保存処理（100ml〜3000mlなどの現実的な範囲でバリデーション）
   const handleSave = () => {
     const parsed = Number(inputValue);
-    if (!Number.isFinite(parsed) || parsed < 100 || parsed > 10000) {
-      alert('目標値は 100 〜 10,000 ml の間で入力してください');
+    if (!Number.isFinite(parsed) || parsed < 100 || parsed > 3000) {
+      alert('目標値は 100 〜 3,000 ml の間で入力してください');
       return;
     }
     onUpdateTarget?.(Math.round(parsed));

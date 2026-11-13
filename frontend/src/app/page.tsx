@@ -9,7 +9,7 @@ import { WaterLog } from '@/types/log';
 import { WaterLogHistory } from '@/components/WaterLogHistory';
 import { WaterProgressBar, DEFAULT_TARGET_AMOUNT } from '@/components/WaterProgressBar';
 
-// localStrageの保存キー
+// localStorageの保存キー
 const TARGET_AMOUNT_STORAGE_KEY = 'water-tracker-target-amount';
 
 export default function Home() {
@@ -65,7 +65,7 @@ export default function Home() {
     const saved = localStorage.getItem(TARGET_AMOUNT_STORAGE_KEY);
     if (saved) {
       const parsed = Number(saved);
-      if (Number.isFinite(parsed) && parsed >= 100 && parsed <= 10000) {
+      if (Number.isFinite(parsed) && parsed >= 100 && parsed <= 3000) {
         setTargetAmount(parsed);
       }
     }
