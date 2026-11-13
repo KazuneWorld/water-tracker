@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Cup } from '@/types/cup';
 import { createWaterLog } from '@/lib/api';
 import { BottleLogModal } from '@/components/BottleLogModal';
@@ -10,11 +10,29 @@ interface CupCardProps {
   onLogSuccess?: (amountMl: number) => void;
 }
 
+// 今日の日付を取得
+function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function CupCard({ cup, onLogSuccess }: CupCardProps) {
   const [loading, setLoading] = useState(false);
   const [isBottleModalOpen, setIsBottleModalOpen] = useState(false);
   const [recordedToday, setRecordedToday] = useState(false);
   const isBottle = cup.type === 'bottle';
+  const storageKey = `water-tracker-bottle-logged-${cup.id}`;
+
+  useEffect(() => {
+    if (!isBottle) return;
+    const savedDate = localStorage.getItem(storageKey);
+    if (savedDate === getTodayDateString()) {
+      setRecordedToday(true);
+    }
+  }, [isBottle, storageKey]);
 
   const handleClick = async () => {
     if (loading || (isBottle && (recordedToday || isBottleModalOpen))) return;
@@ -32,6 +50,7 @@ export function CupCard({ cup, onLogSuccess }: CupCardProps) {
     try {
       await createWaterLog({ amount_ml: amountMl });
       if (isBottle) {
+        localStorage.setItem(storageKey, getTodayDateString());
         setRecordedToday(true);
         setIsBottleModalOpen(false);
       }
@@ -56,16 +75,20 @@ export function CupCard({ cup, onLogSuccess }: CupCardProps) {
             : 'cursor-pointer hover:bg-slate-200 active:scale-95'
         } ${loading ? 'opacity-50 pointer-events-none' : ''}`}
       >
-      {/* 容器名と容量 */}
+        {/* 容器名と容量 */}
         <h3 className="font-bold text-gray-800 text-base truncate w-full">
           {cup.name}
         </h3>
         <p className="text-gray-500 font-medium">{cup.capacity_ml} ml</p>
 
-      {/* 容器タイプラベル */}
+        {/* 容器タイプラベル */}
         <span
           className={`mt-3 text-xs px-2.5 py-1 rounded-full font-semibold ${
-            isBottle ? 'bg-teal-200' : 'bg-blue-200'
+            isBottle && recordedToday
+              ? 'bg-slate-200 text-slate-600'
+              : isBottle
+                ? 'bg-teal-200'
+                : 'bg-blue-200'
           }`}
         >
           {loading
@@ -78,14 +101,16 @@ export function CupCard({ cup, onLogSuccess }: CupCardProps) {
         </span>
       </button>
 
-      <BottleLogModal
-        cupName={cup.name}
-        capacityMl={cup.capacity_ml}
-        isOpen={isBottleModalOpen}
-        submitting={loading}
-        onClose={() => setIsBottleModalOpen(false)}
-        onSubmit={submitLog}
-      />
+      {isBottle && (
+        <BottleLogModal
+          cupName={cup.name}
+          capacityMl={cup.capacity_ml}
+          isOpen={isBottleModalOpen}
+          submitting={loading}
+          onClose={() => setIsBottleModalOpen(false)}
+          onSubmit={submitLog}
+        />
+      )}
     </>
   );
 }
