@@ -17,7 +17,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [deletedLogId, setDeletedLogId] = useState<number | null>(null);
 
   // サマリー（履歴・合計量）の再取得関数
   const loadSummary = useCallback(async () => {
@@ -67,7 +66,29 @@ export default function Home() {
   };
 
   const handleLogDeleted = (deletedLogId: number) => {
-    setDeletedLogId(deletedLogId);
+    if (typeof window !== 'undefined') {
+      Object.keys(localStorage).forEach((storageKey) => {
+        if (!storageKey.startsWith('water-tracker-bottle-logged-')) return;
+
+        const value = localStorage.getItem(storageKey);
+        if (!value) return;
+
+        try {
+          const stored = JSON.parse(value);
+          if (stored.logId === deletedLogId) {
+            localStorage.removeItem(storageKey);
+          }
+        } catch {
+          const now = new Date();
+          const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          if (value === today) localStorage.removeItem(storageKey);
+        }
+      });
+      window.dispatchEvent(
+        new Event('water-tracker-bottle-log-changed'),
+      );
+    }
+
     loadSummary();
   };
 
@@ -129,7 +150,6 @@ export default function Home() {
                   <CupCard
                     key={cup.id}
                     cup={cup}
-                    deletedLogId={deletedLogId}
                     onLogSuccess={(amountMl) =>
                       handleLogSuccess(amountMl, cup.name)
                     }

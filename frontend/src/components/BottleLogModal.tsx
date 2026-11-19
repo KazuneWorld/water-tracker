@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface BottleLogModalProps {
   cupName: string;
@@ -24,13 +24,6 @@ export function BottleLogModal({
 }: BottleLogModalProps) {
   const [selectedPercentage, setSelectedPercentage] = useState(100);
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedPercentage(100);
-      setIsDragging(false);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 

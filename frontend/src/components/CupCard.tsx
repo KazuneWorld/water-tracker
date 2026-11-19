@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Cup } from '@/types/cup';
 import { createWaterLog } from '@/lib/api';
 import { BottleLogModal } from '@/components/BottleLogModal';
 
 interface CupCardProps {
   cup: Cup;
-  deletedLogId?: number | null;
   onLogSuccess?: (amountMl: number) => void;
 }
 
@@ -21,6 +20,8 @@ function getTodayDateString(): string {
 }
 
 function getStoredBottleLog(storageKey: string) {
+  if (typeof window === 'undefined') return null;
+
   const value = localStorage.getItem(storageKey);
   if (!value) return null;
 
@@ -34,33 +35,34 @@ function getStoredBottleLog(storageKey: string) {
   return null;
 }
 
-export function CupCard({ cup, deletedLogId, onLogSuccess }: CupCardProps) {
+const BOTTLE_LOG_CHANGE_EVENT = 'water-tracker-bottle-log-changed';
+
+function subscribeToBottleLogChanges(onStoreChange: () => void) {
+  window.addEventListener('storage', onStoreChange);
+  window.addEventListener(BOTTLE_LOG_CHANGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener('storage', onStoreChange);
+    window.removeEventListener(BOTTLE_LOG_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+export function CupCard({ cup, onLogSuccess }: CupCardProps) {
   const [loading, setLoading] = useState(false);
   const [isBottleModalOpen, setIsBottleModalOpen] = useState(false);
-  const [recordedToday, setRecordedToday] = useState(false);
   const isBottle = cup.type === 'bottle';
   const storageKey = `water-tracker-bottle-logged-${cup.id}`;
 
-  useEffect(() => {
-    if (!isBottle) return;
-    const storedLog = getStoredBottleLog(storageKey);
-    if (storedLog?.date === getTodayDateString()) {
-      setRecordedToday(true);
-    }
-  }, [isBottle, storageKey]);
+  const storedRecordToday = useSyncExternalStore(
+    subscribeToBottleLogChanges,
+    () => {
+      if (!isBottle) return false;
+      return getStoredBottleLog(storageKey)?.date === getTodayDateString();
+    },
+    () => false,
+  );
 
-  useEffect(() => {
-    if (!isBottle || deletedLogId == null) return;
-
-    const storedLog = getStoredBottleLog(storageKey);
-    const isLegacyLog =
-      storedLog?.logId === null &&
-      storedLog.date === getTodayDateString();
-    if (storedLog?.logId !== deletedLogId && !isLegacyLog) return;
-
-    localStorage.removeItem(storageKey);
-    setRecordedToday(false);
-  }, [deletedLogId, isBottle, storageKey]);
+  const recordedToday = storedRecordToday;
 
   const handleClick = async () => {
     if (loading || (isBottle && (recordedToday || isBottleModalOpen))) return;
@@ -85,7 +87,7 @@ export function CupCard({ cup, deletedLogId, onLogSuccess }: CupCardProps) {
             logId: createdLog.id,
           }),
         );
-        setRecordedToday(true);
+        window.dispatchEvent(new Event(BOTTLE_LOG_CHANGE_EVENT));
         setIsBottleModalOpen(false);
       }
       onLogSuccess?.(amountMl);
@@ -135,7 +137,7 @@ export function CupCard({ cup, deletedLogId, onLogSuccess }: CupCardProps) {
         </span>
       </button>
 
-      {isBottle && (
+      {isBottle && isBottleModalOpen && (
         <BottleLogModal
           cupName={cup.name}
           capacityMl={cup.capacity_ml}
