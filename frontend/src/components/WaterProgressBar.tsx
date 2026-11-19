@@ -5,6 +5,17 @@ import confetti from 'canvas-confetti';
 
 // 目標値の定数
 export const DEFAULT_TARGET_AMOUNT = 2000;
+export const MIN_TARGET_AMOUNT = 100;
+export const MAX_TARGET_AMOUNT = 3000;
+
+// 目標値として使える値か（整数かつ範囲内）を判定する
+export function isValidTargetAmount(value: number): boolean {
+  return (
+    Number.isInteger(value) &&
+    value >= MIN_TARGET_AMOUNT &&
+    value <= MAX_TARGET_AMOUNT
+  );
+}
 
 interface WaterProgressBarProps {
   currentAmount: number;
@@ -70,14 +81,16 @@ export function WaterProgressBar({
     setIsEditing(true);
   };
 
-  // 保存処理（100ml〜3000mlなどの現実的な範囲でバリデーション）
+  // 保存処理（目標値として有効な範囲でバリデーション）
   const handleSave = () => {
     const parsed = Number(inputValue);
-    if (!Number.isFinite(parsed) || parsed < 100 || parsed > 3000) {
-      alert('目標値は 100 〜 3,000 ml の間で入力してください');
+    if (!isValidTargetAmount(parsed)) {
+      alert(
+        `目標値は ${MIN_TARGET_AMOUNT} 〜 ${MAX_TARGET_AMOUNT.toLocaleString()} ml の間の整数で入力してください`,
+      );
       return;
     }
-    onUpdateTarget?.(Math.round(parsed));
+    onUpdateTarget?.(parsed);
     setIsEditing(false);
   };
 
@@ -129,8 +142,8 @@ export function WaterProgressBar({
             <input
               type="number"
               step={100}
-              min={100}
-              max={3000}
+              min={MIN_TARGET_AMOUNT}
+              max={MAX_TARGET_AMOUNT}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => {

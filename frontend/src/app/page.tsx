@@ -7,7 +7,11 @@ import { CupCard } from '@/components/CupCard';
 import { AddCupModal } from '@/components/AddCupModal';
 import { WaterLog } from '@/types/log';
 import { WaterLogHistory } from '@/components/WaterLogHistory';
-import { WaterProgressBar, DEFAULT_TARGET_AMOUNT } from '@/components/WaterProgressBar';
+import {
+  WaterProgressBar,
+  DEFAULT_TARGET_AMOUNT,
+  isValidTargetAmount,
+} from '@/components/WaterProgressBar';
 
 // localStorageの保存キー
 const TARGET_AMOUNT_STORAGE_KEY = 'water-tracker-target-amount';
@@ -40,11 +44,7 @@ export default function Home() {
         const savedTargetAmount = localStorage.getItem(TARGET_AMOUNT_STORAGE_KEY);
         if (savedTargetAmount) {
           const parsedTargetAmount = Number(savedTargetAmount);
-          if (
-            Number.isFinite(parsedTargetAmount) &&
-            parsedTargetAmount >= 100 &&
-            parsedTargetAmount <= 3000
-          ) {
+          if (isValidTargetAmount(parsedTargetAmount)) {
             setTargetAmount(parsedTargetAmount);
           }
         }
