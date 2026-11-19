@@ -37,6 +37,18 @@ export default function Home() {
   useEffect(() => {
     async function initData() {
       try {
+        const savedTargetAmount = localStorage.getItem(TARGET_AMOUNT_STORAGE_KEY);
+        if (savedTargetAmount) {
+          const parsedTargetAmount = Number(savedTargetAmount);
+          if (
+            Number.isFinite(parsedTargetAmount) &&
+            parsedTargetAmount >= 100 &&
+            parsedTargetAmount <= 3000
+          ) {
+            setTargetAmount(parsedTargetAmount);
+          }
+        }
+
         const [cupsData, summaryData] = await Promise.all([
           fetchCups(),
           fetchDailySummary(),
@@ -59,17 +71,6 @@ export default function Home() {
   const handleCupAdded = (newCup: Cup) => {
     setCups((prevCups) => [...prevCups, newCup]);
   };
-
-  // 初回マウント時に localStorage から保存済みの目標値を読み込む
-  useEffect(() => {
-    const saved = localStorage.getItem(TARGET_AMOUNT_STORAGE_KEY);
-    if (saved) {
-      const parsed = Number(saved);
-      if (Number.isFinite(parsed) && parsed >= 100 && parsed <= 3000) {
-        setTargetAmount(parsed);
-      }
-    }
-  }, []);
 
   // 目標値を更新して localStorage に保存する関数
   const handleUpdateTargetAmount = (newTarget: number) => {

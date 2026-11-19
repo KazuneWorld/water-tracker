@@ -21,11 +21,6 @@ export function WaterProgressBar({
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState<string>(String(targetAmount));
 
-  // 親から渡される targetAmount が変わったら入力欄の初期値も同期
-  useEffect(() => {
-    setInputValue(String(targetAmount));
-  }, [targetAmount]);
-
   // 達成率（上限なしの計算用とバー幅用の最大100%を分ける）
   const safeTarget = Math.max(targetAmount, 1);
   const isCompleted = currentAmount >= safeTarget;
