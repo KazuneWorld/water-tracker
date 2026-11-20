@@ -87,6 +87,33 @@ export default function Home() {
     loadSummary();
   };
 
+  const handleLogDeleted = (deletedLogId: number) => {
+    if (typeof window !== 'undefined') {
+      Object.keys(localStorage).forEach((storageKey) => {
+        if (!storageKey.startsWith('water-tracker-bottle-logged-')) return;
+
+        const value = localStorage.getItem(storageKey);
+        if (!value) return;
+
+        try {
+          const stored = JSON.parse(value);
+          if (stored.logId === deletedLogId) {
+            localStorage.removeItem(storageKey);
+          }
+        } catch {
+          const now = new Date();
+          const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          if (value === today) localStorage.removeItem(storageKey);
+        }
+      });
+      window.dispatchEvent(
+        new Event('water-tracker-bottle-log-changed'),
+      );
+    }
+
+    loadSummary();
+  };
+
   return (
     <main className="relative min-h-screen bg-slate-50 p-6 max-w-2xl mx-auto">
       {/* 画面上部のトースト通知 */}
@@ -148,7 +175,9 @@ export default function Home() {
                   <CupCard
                     key={cup.id}
                     cup={cup}
-                  onLogSuccess={() => handleLogSuccess(cup.capacity_ml, cup.name)}
+                    onLogSuccess={(amountMl) =>
+                      handleLogSuccess(amountMl, cup.name)
+                    }
                   />
                 ))}
               </div>
@@ -156,7 +185,10 @@ export default function Home() {
           </section>
 
           {/* 本日の履歴セクション */}
-          <WaterLogHistory logs={logs} onDataChange={loadSummary} />
+          <WaterLogHistory
+            logs={logs}
+            onDataChange={handleLogDeleted}
+          />
         </div>
       )}
 

@@ -6,7 +6,7 @@ import { deleteWaterLog } from '@/lib/api';
 
 interface WaterLogHistoryProps {
   logs: WaterLog[];
-  onDataChange: () => void;
+  onDataChange: (deletedLogId: number) => void;
 }
 
 export function WaterLogHistory({ logs, onDataChange }: WaterLogHistoryProps) {
@@ -18,7 +18,7 @@ export function WaterLogHistory({ logs, onDataChange }: WaterLogHistoryProps) {
     setLoadingId(logId);
     try {
       await deleteWaterLog(logId);
-      onDataChange();
+      onDataChange(logId);
     } catch (err) {
       console.error(err);
       alert('削除に失敗しました');
